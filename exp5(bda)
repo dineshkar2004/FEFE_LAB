@@ -1,0 +1,114 @@
+# =========================================================
+# VISUALIZE DATA USING ggplot2 IN R
+# =========================================================
+
+# AIM:
+# To visualize data using ggplot2 plotting framework in R
+
+# =========================================================
+# STEP 1: Install Required Package
+# (Run only first time)
+# =========================================================
+
+install.packages("ggplot2")
+
+# =========================================================
+# STEP 2: Load ggplot2 Library
+# =========================================================
+
+library(ggplot2)
+
+# =========================================================
+# STEP 3: Load Iris Dataset
+# =========================================================
+
+data(iris)
+
+# Display first 6 rows
+head(iris)
+
+# Display first 10 rows
+head(iris, n = 10)
+
+# =========================================================
+# STEP 4: Basic Scatter Plot
+# =========================================================
+
+ggplot(data = iris,
+       aes(x = Sepal.Length,
+           y = Petal.Length)) +
+  geom_point() +
+  ggtitle("Basic Scatter Plot")
+
+# =========================================================
+# STEP 5: Scatter Plot with Species Colors
+# =========================================================
+
+ggplot(data = iris,
+       aes(x = Sepal.Length,
+           y = Petal.Length,
+           color = Species)) +
+  geom_point(size = 3) +
+  ggtitle("Scatter Plot with Species Colors")
+
+# =========================================================
+# STEP 6: Scatter Plot with Point Size
+# =========================================================
+
+ggplot(data = iris,
+       aes(x = Sepal.Length,
+           y = Petal.Length,
+           color = Species,
+           size = Petal.Width)) +
+  geom_point(alpha = 0.7) +
+  ggtitle("Scatter Plot with Point Size")
+
+# =========================================================
+# STEP 7: Scatter Plot with Labels and Title
+# =========================================================
+
+ggplot(data = iris,
+       aes(x = Sepal.Length,
+           y = Petal.Length,
+           color = Species)) +
+  geom_point(size = 3) +
+  xlab("Sepal Length") +
+  ylab("Petal Length") +
+  ggtitle("Sepal vs Petal Length in Fisher's Iris Data")
+
+# =========================================================
+# STEP 8: Histograms (Univariate Visualization)
+# =========================================================
+
+par(mfrow = c(1,4))
+
+for(i in 1:4)
+{
+  hist(iris[,i],
+       main = names(iris)[i],
+       col = "lightblue",
+       xlab = names(iris)[i])
+}
+
+# =========================================================
+# STEP 9: Scatterplot Matrix
+# =========================================================
+
+pairs(iris[1:4],
+      main = "Scatterplot Matrix of Iris Dataset")
+
+# =========================================================
+# STEP 10: Density Plot
+# =========================================================
+
+ggplot(iris,
+       aes(x = Sepal.Length,
+           fill = Species)) +
+  geom_density(alpha = 0.5) +
+  ggtitle("Density Plot of Sepal Length")
+
+# =========================================================
+# RESULT
+# =========================================================
+
+print("Data visualization using ggplot2 executed successfully.")
