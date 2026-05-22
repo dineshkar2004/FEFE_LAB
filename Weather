@@ -1,0 +1,210 @@
+=====================================================
+WEATHER ANALYSIS USING HADOOP MAPREDUCE
+=====================================================
+
+AIM:
+To write and run a Hadoop MapReduce program to find
+the maximum temperature from weather data.
+
+=====================================================
+PROGRAM
+=====================================================
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WeatherAnalysis {
+
+    // =====================================================
+    // MAPPER CLASS
+    // =====================================================
+
+    public static class WeatherMapper
+            extends Mapper<Object, Text, Text, IntWritable> {
+
+        private Text year = new Text();
+        private IntWritable temperature = new IntWritable();
+
+        public void map(Object key,
+                        Text value,
+                        Context context)
+                throws IOException, InterruptedException {
+
+            // Read line
+            String line = value.toString();
+
+            // Split using tab space
+            String[] fields = line.split("\t");
+
+            // Check valid input
+            if(fields.length == 2) {
+
+                year.set(fields[0]);
+
+                int temp =
+                        Integer.parseInt(fields[1]);
+
+                temperature.set(temp);
+
+                context.write(year, temperature);
+            }
+        }
+    }
+
+    // =====================================================
+    // REDUCER CLASS
+    // =====================================================
+
+    public static class WeatherReducer
+            extends Reducer<Text, IntWritable,
+                            Text, IntWritable> {
+
+        public void reduce(Text key,
+                           Iterable<IntWritable> values,
+                           Context context)
+                throws IOException, InterruptedException {
+
+            int maxTemp = Integer.MIN_VALUE;
+
+            // Find maximum temperature
+            for(IntWritable val : values) {
+
+                if(val.get() > maxTemp) {
+                    maxTemp = val.get();
+                }
+            }
+
+            context.write(key,
+                    new IntWritable(maxTemp));
+        }
+    }
+
+    // =====================================================
+    // DRIVER CLASS
+    // =====================================================
+
+    public static void main(String[] args)
+            throws Exception {
+
+        Configuration conf = new Configuration();
+
+        Job job =
+                Job.getInstance(conf,
+                        "Weather Analysis");
+
+        job.setJarByClass(WeatherAnalysis.class);
+
+        // Set Mapper and Reducer
+        job.setMapperClass(WeatherMapper.class);
+        job.setReducerClass(WeatherReducer.class);
+
+        // Output key/value types
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+
+        // Input and Output path
+        FileInputFormat.addInputPath(job,
+                new Path(args[0]));
+
+        FileOutputFormat.setOutputPath(job,
+                new Path(args[1]));
+
+        // Exit
+        System.exit(job.waitForCompletion(true)
+                ? 0 : 1);
+    }
+}
+
+=====================================================
+INPUT FILE (weather.txt)
+=====================================================
+
+2020    32
+2020    28
+2020    35
+2021    25
+2021    30
+2021    40
+
+=====================================================
+OUTPUT
+=====================================================
+
+2020    35
+2021    40
+
+=====================================================
+STEPS TO RUN IN HADOOP
+=====================================================
+
+1. Create Java File
+
+Save program as:
+WeatherAnalysis.java
+
+
+2. Compile Program
+
+javac -classpath `hadoop classpath` -d weather_classes WeatherAnalysis.java
+
+
+3. Create JAR File
+
+jar -cvf weather.jar -C weather_classes/ .
+
+
+4. Create Input Directory in HDFS
+
+hdfs dfs -mkdir /weather_input
+
+
+5. Upload Input File
+
+hdfs dfs -put weather.txt /weather_input
+
+
+6. Run Hadoop Program
+
+hadoop jar weather.jar WeatherAnalysis /weather_input /weather_output
+
+
+7. View Output
+
+hdfs dfs -cat /weather_output/part-r-00000
+
+
+=====================================================
+EXPLANATION
+=====================================================
+
+Mapper:
+Reads input data line by line.
+
+Reducer:
+Finds maximum temperature.
+
+Driver:
+Controls Hadoop job execution.
+
+HDFS:
+Stores large datasets in Hadoop.
+
+=====================================================
+RESULT
+=====================================================
+
+Thus, the Hadoop MapReduce weather analysis
+program was executed successfully and the
+maximum temperature was obtained from the dataset.
